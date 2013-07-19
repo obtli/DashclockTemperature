@@ -1,0 +1,17 @@
+<resources>
+
+    <string name="app_name">DashclockTemperature</string>
+    <string name="extension_title">Dashclock Temperature</string>
+    <string name="extension_description">This extension displays temperature information from a thermometer extension.</string>
+
+    
+    <string name="pref_temperature_label_title">Temperature Units</string>
+    <string-array name="pref_temperature_label_display_names">
+        <item>Celsius</item>
+        <item>Fahrenheit</item>
+    </string-array>
+    <string-array name="pref_temperature_label_values" translatable="false">
+        <item>c</item>
+        <item>f</item>
+    </string-array>
+</resources>

@@ -1,0 +1,41 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.andrewjsinclair.dashclocktemperature"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="17"
+        android:targetSdkVersion="17" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+
+        <service android:name=".TemperatureExtension"
+            android:icon="@drawable/device_access_brightness_low"
+            android:label="@string/extension_title"
+            android:permission="com.google.android.apps.dashclock.permission.READ_EXTENSION_DATA"
+			>
+            
+            <meta-data
+                android:name="protocolVersion"
+                android:value="1" />
+            
+            <intent-filter>
+                <action android:name="com.google.android.apps.dashclock.Extension" />
+            </intent-filter>
+            <meta-data android:name="protocolVersion" android:value="1" />
+            <meta-data android:name="description"
+                android:value="@string/extension_description" />
+            <meta-data android:name="settingsActivity"
+                android:value="com.andrewjsinclair.dashclocktemperature.TemperatureExtensionSettings" />
+        </service>
+        
+		<activity android:name=".TemperatureExtensionSettings"
+		    android:exported="true"
+            android:label="@string/pref_temperature_label_title" />
+    </application>
+
+</manifest>
