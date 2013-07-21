@@ -11,9 +11,9 @@ import com.google.android.apps.dashclock.api.ExtensionData;
 
 
 public class TemperatureExtension extends DashClockExtension {
-    private float mMeasuredTemperature = (float) 0.0;
-    private int mDisplayedTemperature = 0;
-    private float mHumidity = (float) 0.0;
+    private float mMeasuredTemperature = 0.0f;
+    private float mDisplayedTemperature = 0.0f;
+    private float mHumidity = 0.0f;
     private String mTempUnits = DEGREES + "C";
 
     protected static final String PREF_LABEL = "temp_units";
@@ -33,10 +33,10 @@ public class TemperatureExtension extends DashClockExtension {
 
 
         if (!fahrenheit) {
-            mDisplayedTemperature = (int) mMeasuredTemperature;
+            mDisplayedTemperature = mMeasuredTemperature;
             mTempUnits = DEGREES + "C";
         } else {
-            mDisplayedTemperature =  (int)((9 * mMeasuredTemperature) / 5 + 32.0f);
+            mDisplayedTemperature =  ((9.0f * mMeasuredTemperature) / 5.0f + 32.0f);
             mTempUnits = DEGREES + "F";
         }
 
@@ -51,9 +51,9 @@ public class TemperatureExtension extends DashClockExtension {
 
     private String makeStatusString() {
         StringBuilder s = new StringBuilder();
-        s.append(makeTemperatureString());
+        s.append(makeTemperatureShortString());
         s.append("/");
-        s.append(makeHumidityString());
+        s.append(makeHumidityShortString());
         return s.toString();
     }
 
@@ -66,12 +66,21 @@ public class TemperatureExtension extends DashClockExtension {
         return s.toString();
     }
 
+    private String makeTemperatureShortString() {
+        return new String(String.format("%.0f", mDisplayedTemperature) + mTempUnits);
+    }
+
     private String makeTemperatureString() {
-        return new String(String.format("%d", mDisplayedTemperature) + mTempUnits);
+        return new String("Temperature: " +
+                String.format("%.1f", mDisplayedTemperature) + mTempUnits);
     }
 
     private String makeHumidityString() {
-        return new String(String.format("%.1f", mHumidity) + "%");
+        return new String("Relative Humidity: " + String.format("%.1f", mHumidity) + "%");
+    }
+
+    private String makeHumidityShortString() {
+        return new String(String.format("%.0f", mHumidity) + "%");
     }
 
 
