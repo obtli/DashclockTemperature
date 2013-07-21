@@ -11,68 +11,124 @@ import com.google.android.apps.dashclock.api.ExtensionData;
 
 
 public class TemperatureExtension extends DashClockExtension {
-	private float temperature = (float) 0.0;
-	public static final String PREF_LABEL = "temp_units";
+    private float mMeasuredTemperature = (float) 0.0;
+    private int mDisplayedTemperature = 0;
+    private float mHumidity = (float) 0.0;
+    private String mTempUnits = DEGREES + "C";
 
-	@Override
-	public void onInitialize(boolean isReconnect) {
+    protected static final String PREF_LABEL = "temp_units";
+    private static final char DEGREES = (char)0x00B0;
+
+    @Override
+    public void onInitialize(boolean isReconnect) {
         super.onInitialize(isReconnect);
-		SensorManager mySensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-		Sensor AmbientTemperatureSensor = mySensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
-		
-		if(AmbientTemperatureSensor != null){
-		      mySensorManager.registerListener(
-		        AmbientTemperatureSensorListener, 
-		        AmbientTemperatureSensor, 
-		        SensorManager.SENSOR_DELAY_NORMAL);
-		}
-		setUpdateWhenScreenOn(true);
-	}
-	
-	@Override
-	protected void onUpdateData(int reason) {
+        initSensors();
+        setUpdateWhenScreenOn(true);
+    }
+
+    @Override
+    protected void onUpdateData(int reason) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         boolean fahrenheit = sp.getBoolean(PREF_LABEL, true);
-        String tempUnitsOutput = (char)0x00B0 + "C";
-        int convertedTemp = 0;
 
-        
-        if(!fahrenheit) {
-        	convertedTemp = (int) temperature;
-        	tempUnitsOutput = (char)0x00B0 + "C";
+
+        if (!fahrenheit) {
+            mDisplayedTemperature = (int) mMeasuredTemperature;
+            mTempUnits = DEGREES + "C";
         } else {
-        	convertedTemp =  (int)((9 * temperature) / 5 + 32.0f);
-        	tempUnitsOutput = (char)0x00B0 + "F";
+            mDisplayedTemperature =  (int)((9 * mMeasuredTemperature) / 5 + 32.0f);
+            mTempUnits = DEGREES + "F";
         }
-        
-		publishUpdate(new ExtensionData()
-	    .visible(true)
-	    .icon(R.drawable.device_access_brightness_low)
-	    .status(String.format("%d", convertedTemp) + tempUnitsOutput)
-	    .expandedTitle("Temperature " + String.format("%d", convertedTemp) + tempUnitsOutput )	    
-		);
 
-	}
-	
+        publishUpdate(new ExtensionData()
+                .visible(true)
+                .icon(R.drawable.device_access_brightness_low)
+                .status(makeStatusString())
+                .expandedTitle(makeTitleString())
+        );
 
-	
-   private final SensorEventListener AmbientTemperatureSensorListener
-    = new SensorEventListener(){
+    }
 
-  @Override
-  public void onAccuracyChanged(Sensor sensor, int accuracy) {
-   // TODO Auto-generated method stub
-  
-  }
+    private String makeStatusString() {
+        StringBuilder s = new StringBuilder();
+        s.append(makeTemperatureString());
+        s.append("/");
+        s.append(makeHumidityString());
+        return s.toString();
+    }
 
-  @Override
-  public void onSensorChanged(SensorEvent event) {
-   if(event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE){
-	   
-    TemperatureExtension.this.temperature =  event.values[0];
-   }
-  }
 
-   };
+    private String makeTitleString() {
+        StringBuilder s = new StringBuilder();
+        s.append(makeTemperatureString());
+        s.append("\n");
+        s.append(makeHumidityString());
+        return s.toString();
+    }
+
+    private String makeTemperatureString() {
+        return new String(String.format("%d", mDisplayedTemperature) + mTempUnits);
+    }
+
+    private String makeHumidityString() {
+        return new String(String.format("%.1f", mHumidity) + "%");
+    }
+
+
+    /** Setup listeners for the chosen sensors.
+     * TODO: Provide logic to choose sensors in preferences.
+     */
+    private void initSensors() {
+        SensorManager manager = (SensorManager)getSystemService(SENSOR_SERVICE);
+
+        initTemperatureSensor(manager);
+        initHumiditySensor(manager);
+    }
+
+    private void initTemperatureSensor(SensorManager manager) {
+        Sensor temperatureSensor = manager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+        if (temperatureSensor != null) {
+            manager.registerListener(
+                    SensorListener,
+                    temperatureSensor,
+                    SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+
+    private void initHumiditySensor(SensorManager manager) {
+        Sensor humiditySensor = manager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+        if(humiditySensor != null) {
+            manager.registerListener(
+                    SensorListener,
+                    humiditySensor,
+                    SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+
+
+    private final SensorEventListener SensorListener
+            = new SensorEventListener(){
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+            // Accuracy is unimportant for this Extension
+            return;
+        }
+
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            switch(event.sensor.getType()) {
+                case Sensor.TYPE_AMBIENT_TEMPERATURE:
+                    mMeasuredTemperature =  event.values[0];
+                    break;
+                case Sensor.TYPE_RELATIVE_HUMIDITY:
+                    mHumidity = event.values[0];
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    };
 
 }

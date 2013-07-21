@@ -14,8 +14,8 @@ public class TemperatureExtensionSettings extends PreferenceActivity {
         getActionBar().setIcon(R.drawable.device_access_brightness_low);
         getActionBar().setDisplayHomeAsUpEnabled(true);
     }
-    
-    
+
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -29,7 +29,7 @@ public class TemperatureExtensionSettings extends PreferenceActivity {
     }
 
 
-	@Override
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             // TODO: if the previous activity on the stack isn't a ConfigurationActivity,
@@ -40,7 +40,7 @@ public class TemperatureExtensionSettings extends PreferenceActivity {
 
         return super.onOptionsItemSelected(item);
     }
-	
+
     /**
      * A preference value change listener that updates the preference's summary to reflect its new
      * value.
@@ -59,7 +59,7 @@ public class TemperatureExtensionSettings extends PreferenceActivity {
             return true;
         }
     };
-    
+
     /**
      * Binds a preference's summary to its value. More specifically, when the preference's value is
      * changed, its summary (line of text below the preference title) is updated to reflect the
@@ -75,7 +75,7 @@ public class TemperatureExtensionSettings extends PreferenceActivity {
      * immediately called with the preference's current value upon calling this method.
      */
     public static void setAndCallPreferenceChangeListener(Preference preference,
-            Preference.OnPreferenceChangeListener listener) {
+                                                          Preference.OnPreferenceChangeListener listener) {
         // Set the listener to watch for value changes.
         preference.setOnPreferenceChangeListener(listener);
 
